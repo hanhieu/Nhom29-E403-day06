@@ -23,8 +23,9 @@ def ingest():
     documents = []
     metadatas = []
 
-    for item in items:
-        ids.append(item["id"])
+    for i, item in enumerate(items):
+        item_id = item.get("id") or f"{item.get('user_type', 'unknown')}_{i}"
+        ids.append(item_id)
         documents.append(f"{item['question']}\n{item['answer']}")
         metadatas.append({
             "user_type": item["user_type"],
