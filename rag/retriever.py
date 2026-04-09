@@ -24,8 +24,8 @@ def retrieve(query: str, user_type: str, top_k: int = 2) -> list[dict]:
                 })
         return chunks
 
-    # Search 1: filtered by user_type
-    typed_chunks = _query({"user_type": user_type})
+    # Search 1: filtered by user_type (skip if not provided)
+    typed_chunks = _query({"user_type": user_type}) if user_type else []
 
     # Search 2: no filter (community + all types)
     all_chunks = _query(None)
