@@ -25,7 +25,7 @@ _DATA_PATH = os.path.normpath(
 
 SERVICE_LABELS: dict[str, str] = {
     "taxi":      "Xanh SM Car",
-    "luxury":    "Xanh SM Luxury",
+    "bike":      "Xanh SM Bike",
     "premium":   "Xanh SM Premium",
     "two_ways":  "Phụ phí",
 }
@@ -35,8 +35,8 @@ SERVICE_ALIASES: dict[str, str] = {
     "car":          "taxi",
     "xanh sm car":  "taxi",
     "xanh sm":      "taxi",
-    "luxury":       "luxury",
-    "xanh sm luxury": "luxury",
+    "bike":         "bike",
+    "xanh sm bike": "bike",
     "premium":      "premium",
     "xanh sm premium": "premium",
     "phu phi":      "two_ways",
@@ -213,10 +213,10 @@ FARE_TOOL_DEFINITION = {
                 },
                 "service_type": {
                     "type": "string",
-                    "enum": ["taxi", "luxury", "premium", "two_ways", "all"],
+                    "enum": ["taxi", "bike", "premium", "two_ways", "all"],
                     "description": (
                         "'taxi' – Xanh SM Car (ô tô thường); "
-                        "'luxury' – Xanh SM Luxury (7 chỗ); "
+                        "'bike' – Xanh SM Bike; "
                         "'premium' – Xanh SM Premium; "
                         "'two_ways' – bảng phụ phí so sánh Car và Premium; "
                         "'all' – tất cả loại dịch vụ (mặc định)."
