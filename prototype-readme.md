@@ -87,7 +87,7 @@ chainlit run app.py -w
 | Thành viên | Phần phụ trách | Output cụ thể |
 |---|---|---|
 | Nguyễn Bình Thành | Full-stack prototype: RAG pipeline, ChromaDB, Chainlit UI, dual-search retriever, Facebook data ingestion | `app.py`, `bot/`, `rag/`, `config.py` |
-|  |  | spec-final.md phần 1, 4 |
+| Phan Anh Khôi | Thiết kế architecture và UX, tìm nguồn data, viết prompt, làm prototype demo | `bot/handlers/`, `app.py` |
 | ___ | User stories 4 paths + Prompt engineering | spec-final.md phần 2, prototype/prompt-tests.md |
 | ___ | Eval metrics + ROI + Demo slides | spec-final.md phần 3, 5, demo-slides.pdf |
 
