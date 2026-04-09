@@ -12,7 +12,7 @@
 |   | Value | Trust | Feasibility |
 |---|-------|-------|-------------|
 | **Câu hỏi** | User nào? Pain gì? AI giải gì? | Khi AI sai thì sao? User sửa bằng cách nào? | Cost/latency bao nhiêu? Risk chính? |
-| **Trả lời** | **User:** 4 nhóm trong hệ sinh thái Xanh SM — Hành khách, Tài xế Taxi, Tài xế Bike, Nhà hàng đối tác. **Pain:** Mất thời gian tìm thông tin giá cước, khu vực hoạt động, chính sách vận hành qua nhiều kênh không phân loại theo vai trò (website, hotline 1900 2088, mạng xã hội). **AI giải:** User chọn loại tài khoản (4 nút) hoặc hỏi trực tiếp — chatbot trả lời tức thì (&lt;3s) dựa trên FAQ chính thức (ưu tiên) kết hợp kinh nghiệm cộng đồng (bổ trợ), thay thế việc gọi hotline cho câu hỏi thông thường. | **Khi AI sai:** AI báo sai giá, khu vực hoặc chính sách → user đặt xe/hoạt động sai → bị tính phí sai hoặc vi phạm chính sách. **User biết sai:** Disclaimer *“Thông tin có thể thay đổi, xác nhận trong app”* hiển thị mỗi câu trả lời; nguồn được gắn nhãn [Chính thức] / [Cộng đồng]. **User sửa:** Nút **“Báo sai”** 1 click → correction log → content team review → cập nhật knowledge base. Nút **“Gọi hotline 1900 2088”** và **“Chat nhân viên”** luôn hiển thị — user không bị lock‑in. | **Cost:** ~$0.002–0.005/query (GPT‑4o). **Latency:** &lt;3s (streaming). **Stack:** ChromaDB (local), `keepitreal/vietnamese-sbert`, RAG dual-search + dedup. **Risk chính:** Thông tin giá/khuyến mãi và chính sách thay đổi nhanh làm knowledge base bị stale trong khi AI trả lời tự tin. **Mitigation:** Timestamp mỗi FAQ, auto‑disclaimer nếu &gt;7 ngày chưa verify, pipeline crawl website Xanh SM hằng ngày. |
+| **Trả lời** | **User:** 4 nhóm trong hệ sinh thái Xanh SM — Hành khách, Tài xế Taxi, Tài xế Bike, Nhà hàng đối tác. **Pain:** Mất thời gian tìm thông tin giá cước, khu vực hoạt động, chính sách vận hành qua nhiều kênh không phân loại theo vai trò (website, hotline 1900 2088, mạng xã hội). **AI giải:** User chọn loại tài khoản (4 nút) hoặc hỏi trực tiếp — chatbot trả lời tức thì (&lt;3s) dựa trên FAQ chính thức (ưu tiên) kết hợp kinh nghiệm cộng đồng (bổ trợ), thay thế việc gọi hotline cho câu hỏi thông thường. | **Khi AI sai:** AI báo sai giá, khu vực hoặc chính sách → user đặt xe/hoạt động sai → bị tính phí sai hoặc vi phạm chính sách. **User biết sai:** Nguồn gắn nhãn [Chính thức] / [Cộng đồng] trong mỗi câu trả lời. **User sửa:** Nút 👎 Dislike (Chainlit native) → correction log → content team review → cập nhật knowledge base. **Khi AI không giải quyết được:** Intent classifier phát hiện `human_escalation` (user thất vọng, hỏi mãi không được) → bot hard-route sang hotline 1900 2088, nhân viên người thật tiếp nhận. | **Cost:** ~$0.002–0.005/query (GPT‑4o). **Latency:** &lt;3s (streaming). **Stack:** ChromaDB (local), `keepitreal/vietnamese-sbert`, RAG dual-search + dedup, query rewriter (LLM). **Risk chính:** Thông tin giá/khuyến mãi và chính sách thay đổi nhanh làm knowledge base bị stale trong khi AI trả lời tự tin. **Mitigation:** Timestamp mỗi FAQ, auto‑disclaimer nếu &gt;7 ngày chưa verify, pipeline crawl website Xanh SM hằng ngày. |
 
 **Automation hay augmentation?** ☐ Automation · ☑ Augmentation  
 Justify: *AI gợi ý và trả lời, user quyết định cuối cùng. Với câu hỏi phức tạp (khiếu nại nghiêm trọng, tai nạn), AI hard‑route sang agent người thật — không tự xử lý.*
@@ -54,6 +54,19 @@ Justify: *AI gợi ý và trả lời, user quyết định cuối cùng. Với 
 
 ---
 
+### Feature: Đăng ký tài xế qua chatbot (guided form)
+
+**Trigger:** User nhắn muốn đăng ký / ứng tuyển làm tài xế → intent classifier phát hiện `driver_registration`
+
+| Path | Câu hỏi thiết kế | Mô tả |
+|------|-------------------|-------|
+| Happy — AI đúng, tự tin | User thấy gì? Flow kết thúc ra sao? | Bot xác nhận intent → user chọn "✅ Xác nhận" → form 5 bước (họ tên, SĐT, hạng bằng, địa điểm, nhu cầu) → submit thành công |
+| Low-confidence — AI không chắc | System báo thế nào? | Bot hỏi lại "Bạn có muốn đăng ký tài xế không?" trước khi vào flow, user có thể từ chối |
+| Failure — AI sai | Recover ra sao? | User nhấn "❌ Không phải" → bot quay về xử lý câu hỏi bình thường |
+| Correction — user sửa | Data đi vào đâu? | Form lưu vào `data/driver_applications.jsonl` — team review thủ công |
+
+---
+
 ## 3. Eval metrics + threshold
 
 **Optimize precision hay recall?** ☑ Precision · ☐ Recall  
@@ -73,7 +86,7 @@ Justify: *AI gợi ý và trả lời, user quyết định cuối cùng. Với 
 | # | Trigger | Hậu quả | Mitigation |
 |---|---------|---------|------------|
 | 1 | FAQ giá/chính sách stale | User tin AI và làm sai | Timestamp + auto‑disclaimer + crawl |
-| 2 | Nhận nhầm intent khẩn cấp | User không được hỗ trợ kịp thời | Intent classifier → hard‑route hotline |
+| 2 | AI trả lời vòng vòng, không giải quyết được | User thất vọng, bỏ dùng hoặc phải tự gọi hotline | Intent classifier phát hiện `human_escalation` → bot dừng, hiển thị hotline 1900 2088, hard-route sang nhân viên người thật |
 | 3 | Data cộng đồng nhiễu | AI trả lời lệch | Ưu tiên nguồn chính thức |
 
 ---
@@ -95,5 +108,8 @@ Justify: *AI gợi ý và trả lời, user quyết định cuối cùng. Với 
 
 Xanh SM AI Support Chatbot là chatbot hỗ trợ đa vai trò trong hệ sinh thái Xanh SM, phục vụ đồng thời hành khách, tài xế taxi, tài xế bike và nhà hàng đối tác. Sản phẩm tập trung giải quyết bài toán thông tin rời rạc và không phân loại theo user role — nguyên nhân chính khiến hotline quá tải.
 
-AI hoạt động theo hướng augmentation: trả lời FAQ và gợi ý hành động, user quyết định cuối cùng. Chất lượng tối ưu theo hướng precision‑first, chấp nhận escalate thay vì trả lời sai. Data flywheel đến từ correction, feedback và hành vi click giúp model cải thiện dần, tạo moat từ data đặc thù Xanh SM.
-``
+AI hoạt động theo hướng augmentation: trả lời FAQ và gợi ý hành động, user quyết định cuối cùng. Chất lượng tối ưu theo hướng precision‑first, chấp nhận escalate thay vì trả lời sai.
+
+**Pipeline kỹ thuật:** Query rewriter (LLM) cải thiện câu hỏi trước khi đưa vào RAG → dual-search ChromaDB (filter theo role + unfiltered fallback) → GPT-4o streaming với tool calling (tra cứu giá cước 45 tỉnh). Intent classifier (gpt-4o-mini, ~$0.0001/call) chạy song song để phát hiện 3 trường hợp đặc biệt: đăng ký tài xế (guided form 5 bước), human escalation (route sang hotline 1900 2088 khi AI bất lực), và câu hỏi thông thường.
+
+Data flywheel đến từ 👎 dislike (correction log), feedback và hành vi click giúp model cải thiện dần, tạo moat từ data đặc thù Xanh SM.
