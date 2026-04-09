@@ -3,8 +3,8 @@ import chainlit as cl
 
 USER_TYPE_LABELS = {
     "nguoi_dung": "👤 Hành khách",
-    "taxi": "🚖 Tài xế Taxi",
-    "bike": "🛵 Tài xế Bike",
+    "tai_xe_taxi": "🚖 Tài xế Taxi",
+    "tai_xe_bike": "🛵 Tài xế Bike",
     "nha_hang": "🍜 Nhà hàng",
 }
 
