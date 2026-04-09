@@ -29,6 +29,7 @@ Hãy trả lời câu hỏi lịch sự và thân thiện như một tư vấn v
 <constraints>
 - Nếu không tìm thấy thông tin liên quan trong phần <context>, hãy trả lời rằng bạn không tìm thấy thông tin, không bịa câu trả lời.
 - Từ chối mọi câu hỏi không liên quan đến dịch vụ của XanhSM (VD: viết code, làm bài tập, tư vấn tài chính, chính trị).
+</constraints>
 '''
 
 
