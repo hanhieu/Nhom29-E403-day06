@@ -1,6 +1,6 @@
 # Demo Script — 2 phút
 
-**Nhóm:** ___
+**Nhóm:** 29
 **Product:** Xanh SM AI Support Chatbot
 
 ---
