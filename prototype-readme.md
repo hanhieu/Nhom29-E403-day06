@@ -88,6 +88,7 @@ chainlit run app.py -w
 |---|---|---|
 | Nguyễn Bình Thành | Full-stack prototype: RAG pipeline, ChromaDB, Chainlit UI, dual-search retriever, Facebook data ingestion | `app.py`, `bot/`, `rag/`, `config.py` |
 | Hàn Quang Hiếu | Lên ý tưởng và viết hoàn chỉnh các phần spec (AI Product Canvas, User Stories 4 paths, Eval metrics, Failure modes, ROI, Mini AI spec); đề xuất insight foreigners là nhóm user chính bị underserved; xây dựng tool crawl website FAQ chính thức Xanh SM; xây dựng tool thu thập dữ liệu từ Facebook Group để bổ sung câu hỏi thường gặp từ cộng đồng; xây dựng khung prototype | `spec-final.md` (toàn bộ phần 1–6); `crawlFAQ.py`; `xanhsm_faqs.json`; `prototype-readme.md` |
+| Phan Anh Khôi | Thiết kế architecture và UX, tìm nguồn data, viết prompt, làm prototype demo | `bot/handlers/`, `app.py` |
 | ___ | User stories 4 paths + Prompt engineering | spec-final.md phần 2, prototype/prompt-tests.md |
 | ___ | Eval metrics + ROI + Demo slides | spec-final.md phần 3, 5, demo-slides.pdf |
 
