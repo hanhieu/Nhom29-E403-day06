@@ -6,7 +6,7 @@ import chainlit as cl
 from openai import AsyncOpenAI
 from config import OPENAI_API_KEY, OPENAI_MODEL, TOP_K
 from rag.retriever import retrieve
-from bot.tools.fare_data import FARE_TOOL_DEFINITION, execute_tool
+from bot.tools.fare_data import FARE_TOOL_DEFINITION, execute_tool as _fare_execute
 from bot.tools.query_rewriter import rewrite_query
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ Loại người dùng: {user_type_label}
 - Trả lời câu hỏi dựa trên thông tin được cung cấp trong phần <context> bên dưới. Không sử dụng kiến thức bên ngoài phần này.
 - Thông tin [Chính thức] là nguồn đáng tin cậy, ưu tiên sử dụng để trả lời.
 - Thông tin [Cộng đồng] là bình luận từ người dùng trên mạng xã hội, KHÔNG phải câu trả lời chính thức. Chỉ dùng để hiểu thêm ngữ cảnh, KHÔNG được trích dẫn hoặc lặp lại nội dung này như câu trả lời.
-- Khi người dùng hỏi về giá cước, phí đi xe, chi phí chuyến đi tại một thành phố cụ thể, hãy sử dụng tool lookup_fare để tra cứu và trình bày kết quả rõ ràng.
+- Khi người dùng hỏi về giá cước, phí đi xe, chi phí chuyến đi tại một thành phố cụ thể, hãy sử dụng tool lookup_fare để tra cứu và trình bày kết quả rõ ràng. Tool này không phụ thuộc vào <context>.
 </rules>
 
 <context>
@@ -46,6 +46,12 @@ Loại người dùng: {user_type_label}
 BOT_NAME = "XanhSM"
 
 TOOLS = [FARE_TOOL_DEFINITION]
+
+
+def _execute_tool(name: str, args: dict) -> str:
+    if name == "lookup_fare":
+        return _fare_execute(name, args)
+    return f"Tool '{name}' không được hỗ trợ."
 
 
 async def handle_chat(user_message: str, user_type: str):
@@ -74,7 +80,10 @@ async def handle_chat(user_message: str, user_type: str):
         "nha_hang": "Nhà hàng",
     }
     user_type_label = user_type_labels.get(user_type, "Chưa xác định")
-    system_prompt = SYSTEM_TEMPLATE.format(context=context, user_type_label=user_type_label)
+    system_prompt = SYSTEM_TEMPLATE.format(
+        context=context,
+        user_type_label=user_type_label,
+    )
 
     history.append({"role": "user", "content": user_message})
     messages = [{"role": "system", "content": system_prompt}] + history
@@ -162,7 +171,7 @@ async def _chat_with_tools(messages: list[dict], msg: cl.Message) -> str:
             args = {}
 
         logger.info("[TOOL] calling %s args=%r", tc["name"], args)
-        result = execute_tool(tc["name"], args)
+        result = _execute_tool(tc["name"], args)
 
         tool_result_messages.append({
             "role": "tool",
