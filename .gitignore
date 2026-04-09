@@ -1,1 +1,15 @@
 .env
+
+# Cache
+__pycache__/
+*.pyc
+
+# Vector DB
+.chromadb/
+
+# Chainlit
+.chainlit/
+chainlit.md
+
+# VSCode
+.vscode/
